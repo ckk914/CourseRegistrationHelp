@@ -37,4 +37,5 @@ dependencies {
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
+    compile 'com.android.volly:volley:1.5.0'
 }
