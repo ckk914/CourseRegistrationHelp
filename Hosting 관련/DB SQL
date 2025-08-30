@@ -1,0 +1,10 @@
+
+//생성 쿼리
+CREATE TABLE STUDENT (
+	StudentID VARCHAR(50) NOT NULL,
+    StudentPassword VARCHAR(50) NOT NULL,
+    StudentGender VARCHAR(50) NOT NULL,
+    StudentMajor VARCHAR(50) NOT NULL,
+    StudentEmail VARCHAR(100) NOT NULL,
+    CONSTRAINT PRIMARY KEY(StudentID)
+);
