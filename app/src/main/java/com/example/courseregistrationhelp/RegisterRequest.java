@@ -12,15 +12,15 @@ public class RegisterRequest extends StringRequest{
     final static private String URL = "http://seq0914.dothome.co.kr/StudentRegister.php";
     private Map<String, String> parameters;
 
-    public RegisterRequest(String studentID, String studentPassword, String studentGender, String studentMajor, String studentEmail, Response.Listener<String> listener){
+    public RegisterRequest(String StudentID, String StudentPassword, String StudentGender, String StudentMajor, String StudentEmail, Response.Listener<String> listener, Response.ErrorListener errorListener){
     super(Method.POST, URL, listener, null);
 
     parameters = new HashMap<>();
-    parameters.put("studentID", studentID);
-    parameters.put("studentPassword", studentPassword);
-    parameters.put("studentGender", studentGender);
-    parameters.put("studentMajor", studentMajor);
-    parameters.put("studentEmail", studentEmail);
+    parameters.put("StudentID", StudentID);
+    parameters.put("StudentPassword", StudentPassword);
+    parameters.put("StudentGender", StudentGender);
+    parameters.put("StudentMajor", StudentMajor);
+    parameters.put("StudentEmail", StudentEmail);
 
     }
     @Override
