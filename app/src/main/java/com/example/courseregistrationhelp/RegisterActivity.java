@@ -20,6 +20,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONObject;
@@ -30,7 +31,7 @@ public class RegisterActivity extends AppCompatActivity {
     private Spinner spinner;
     private String studentID;
     private String studentPassword;
-    private String studentGender;
+    private String studentGender = ""; // 초기값을 빈 문자열로 설정
     private String studentMajor;
     private String studentEmail;
     private AlertDialog alertDialog;
@@ -52,15 +53,24 @@ public class RegisterActivity extends AppCompatActivity {
         final EditText emailText = (EditText) findViewById(R.id.emailText);
 
         RadioGroup genderGroup = (RadioGroup) findViewById(R.id.genderGroup);
+
+        // 초기 성별 값 안전하게 처리
         int genderGroupID = genderGroup.getCheckedRadioButtonId();
-        studentGender = ((RadioButton) findViewById(genderGroupID)).getText().toString();
+        if (genderGroupID != -1) {
+            RadioButton selectedGender = (RadioButton) findViewById(genderGroupID);
+            if (selectedGender != null) {
+                studentGender = selectedGender.getText().toString();
+            }
+        }
 
         genderGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-
             @Override
             public void onCheckedChanged(@NonNull RadioGroup group, int checkedId) {
                 RadioButton genderButton = (RadioButton) findViewById(checkedId);
-                studentGender = genderButton.getText().toString();
+                if (genderButton != null) {
+                    studentGender = genderButton.getText().toString();
+                    Log.d("DEBUG", "성별 선택됨: " + studentGender);
+                }
             }
         });
 
@@ -70,11 +80,16 @@ public class RegisterActivity extends AppCompatActivity {
         validateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                studentID = idText.getText().toString();
+                studentID = idText.getText().toString().trim(); // trim() 추가
+                Log.d("DEBUG", "중복체크 버튼 클릭 - studentID: [" + studentID + "]");
+
                 if (validate) {
+                    Log.d("DEBUG", "이미 검증된 상태");
                     return;
                 }
+
                 if (studentID.equals("")) {
+                    Log.d("DEBUG", "아이디가 비어있음");
                     AlertDialog.Builder builder = new AlertDialog.Builder(RegisterActivity.this);
                     AlertDialog dialog = builder.setMessage("아이디를 입력하세요.")
                             .setPositiveButton("확인", null)
@@ -82,14 +97,18 @@ public class RegisterActivity extends AppCompatActivity {
                     dialog.show();
                     return;
                 }
-                Response.Listener<String> responseListener = new Response.Listener<String>() {
 
+                Log.d("DEBUG", "ValidateRequest 생성 및 전송");
+
+                Response.Listener<String> responseListener = new Response.Listener<String>() {
                     @Override
                     public void onResponse(String s) {
+                        Log.d("DEBUG", "서버 응답 받음: " + s);
                         try {
                             JSONObject jsonResponse = new JSONObject(s);
                             boolean success = jsonResponse.getBoolean("success");
-                            Log.d("check", "success: " + success);
+                            Log.d("DEBUG", "파싱 결과 - success: " + success);
+
                             if (success) {
                                 AlertDialog.Builder builder = new AlertDialog.Builder(RegisterActivity.this);
                                 AlertDialog dialog = builder.setMessage("사용할 수 있는 아이디입니다.")
@@ -100,21 +119,54 @@ public class RegisterActivity extends AppCompatActivity {
                                 validate = true;
                                 idText.setBackgroundColor(getResources().getColor(R.color.colorGray));
                                 validateButton.setBackgroundColor(getResources().getColor(R.color.colorGray));
+                                Log.d("DEBUG", "검증 완료 처리됨");
                             } else {
                                 AlertDialog.Builder builder = new AlertDialog.Builder(RegisterActivity.this);
                                 AlertDialog dialog = builder.setMessage("사용할 수 없는 아이디입니다.")
                                         .setNegativeButton("확인", null)
                                         .create();
                                 dialog.show();
+                                Log.d("DEBUG", "사용 불가능한 아이디");
                             }
                         } catch (Exception e) {
+                            Log.e("DEBUG", "JSON 파싱 오류: " + e.getMessage());
                             e.printStackTrace();
+
+                            // 파싱 오류 시 사용자에게 알림
+                            AlertDialog.Builder builder = new AlertDialog.Builder(RegisterActivity.this);
+                            AlertDialog dialog = builder.setMessage("서버 응답 오류가 발생했습니다.")
+                                    .setPositiveButton("확인", null)
+                                    .create();
+                            dialog.show();
                         }
                     }
                 };
-                ValidateRequest validateRequest = new ValidateRequest(studentID, responseListener);
+
+                Response.ErrorListener errorListener = new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("DEBUG", "네트워크 오류 발생");
+                        Log.e("DEBUG", "오류 메시지: " + error.getMessage());
+
+                        if (error.networkResponse != null) {
+                            Log.e("DEBUG", "HTTP 상태 코드: " + error.networkResponse.statusCode);
+                            Log.e("DEBUG", "응답 데이터: " + new String(error.networkResponse.data));
+                        }
+
+                        // 네트워크 오류 시 사용자에게 알림
+                        AlertDialog.Builder builder = new AlertDialog.Builder(RegisterActivity.this);
+                        AlertDialog dialog = builder.setMessage("네트워크 연결을 확인해주세요.")
+                                .setPositiveButton("확인", null)
+                                .create();
+                        dialog.show();
+                    }
+                };
+
+                ValidateRequest validateRequest = new ValidateRequest(studentID, responseListener, errorListener);
                 RequestQueue queue = Volley.newRequestQueue(RegisterActivity.this);
                 queue.add(validateRequest);
+
+                Log.d("DEBUG", "요청이 큐에 추가됨");
             }
         });
 
@@ -122,10 +174,18 @@ public class RegisterActivity extends AppCompatActivity {
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                studentID = idText.getText().toString();
-                studentPassword = passwordText.getText().toString();
-                studentEmail = emailText.getText().toString();
+                studentID = idText.getText().toString().trim();
+                studentPassword = passwordText.getText().toString().trim();
+                studentEmail = emailText.getText().toString().trim();
                 studentMajor = spinner.getSelectedItem().toString();
+
+                Log.d("DEBUG", "회원가입 시도");
+                Log.d("DEBUG", "ID: " + studentID);
+                Log.d("DEBUG", "Password: " + (studentPassword.isEmpty() ? "비어있음" : "입력됨"));
+                Log.d("DEBUG", "Email: " + studentEmail);
+                Log.d("DEBUG", "Major: " + studentMajor);
+                Log.d("DEBUG", "Gender: " + studentGender);
+                Log.d("DEBUG", "Validate: " + validate);
 
                 if (!validate) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(RegisterActivity.this);
@@ -135,22 +195,25 @@ public class RegisterActivity extends AppCompatActivity {
                     dialog.show();
                     return;
                 }
+
                 if (studentID.equals("") || studentPassword.equals("") || studentEmail.equals("") || studentMajor.equals("") || studentGender.equals("")) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(RegisterActivity.this);
                     AlertDialog dialog = builder.setMessage("빈 칸 없이 입력하세요.")
                             .setPositiveButton("확인", null)
                             .create();
                     dialog.show();
+                    Log.d("DEBUG", "빈 칸이 있어서 회원가입 실패");
                     return;
                 }
-//
-                Response.Listener<String> responseListener = new Response.Listener<String>() {
 
+                Response.Listener<String> responseListener = new Response.Listener<String>() {
                     @Override
                     public void onResponse(String s) {
+                        Log.d("DEBUG", "회원가입 서버 응답: " + s);
                         try {
                             JSONObject jsonResponse = new JSONObject(s);
                             boolean success = jsonResponse.getBoolean("success");
+
                             if (success) {
                                 AlertDialog.Builder builder = new AlertDialog.Builder(RegisterActivity.this);
                                 AlertDialog dialog = builder.setMessage("회원 등록에 성공했습니다.")
@@ -158,22 +221,39 @@ public class RegisterActivity extends AppCompatActivity {
                                         .create();
                                 dialog.show();
                                 finish();  //회원등록 창 닫음
+                                Log.d("DEBUG", "회원가입 성공");
                             } else {
                                 AlertDialog.Builder builder = new AlertDialog.Builder(RegisterActivity.this);
                                 AlertDialog dialog = builder.setMessage("회원 등록에 실패했습니다.")
                                         .setNegativeButton("확인", null)
                                         .create();
                                 dialog.show();
+                                Log.d("DEBUG", "회원가입 실패");
                             }
                         } catch (Exception e) {
+                            Log.e("DEBUG", "회원가입 JSON 파싱 오류: " + e.getMessage());
                             e.printStackTrace();
                         }
                     }
                 };
-                RegisterRequest registerRequest = new RegisterRequest(studentID, studentPassword, studentGender, studentMajor, studentEmail, responseListener);
+
+                Response.ErrorListener errorListener = new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("DEBUG", "회원가입 네트워크 오류: " + error.getMessage());
+                        AlertDialog.Builder builder = new AlertDialog.Builder(RegisterActivity.this);
+                        AlertDialog dialog = builder.setMessage("네트워크 오류로 회원가입에 실패했습니다.")
+                                .setPositiveButton("확인", null)
+                                .create();
+                        dialog.show();
+                    }
+                };
+
+                RegisterRequest registerRequest = new RegisterRequest(studentID, studentPassword, studentGender, studentMajor, studentEmail, responseListener, errorListener);
                 RequestQueue queue = Volley.newRequestQueue(RegisterActivity.this);
                 queue.add(registerRequest);
-//
+
+                Log.d("DEBUG", "회원가입 요청 전송됨");
             }
         });
     }
@@ -187,6 +267,4 @@ public class RegisterActivity extends AppCompatActivity {
             alertDialog = null;
         }
     }
-
 }
-
