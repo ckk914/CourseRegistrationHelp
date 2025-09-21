@@ -93,6 +93,17 @@
             android:layout_marginTop="10dp"
             />
         </LinearLayout>
+        
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/noticeListView"
+            android:layout_margin="10dp"
+            android:dividerHeight="10dp"
+            android:divider="#ffffff"
+            >
+
+        </ListView>
     </LinearLayout>
     <!-- 바뀌는 부분의 레이아웃 -->
     <RelativeLayout
