@@ -1,5 +1,5 @@
 
-//생성 쿼리
+//학생 데이터 생성 쿼리
 CREATE TABLE STUDENT (
 	StudentID VARCHAR(50) NOT NULL,
     StudentPassword VARCHAR(50) NOT NULL,
@@ -8,3 +8,13 @@ CREATE TABLE STUDENT (
     StudentEmail VARCHAR(100) NOT NULL,
     CONSTRAINT PRIMARY KEY(StudentID)
 );
+
+-----------------------------------------
+//공지 사항 생성 쿼리
+CREATE TABLE NOTICE (
+	noticeContent VARCHAR(1000) NOT NULL,
+	noticeName VARCHAR(50) NOT NULL,
+	noticeDate DATE NOT NULL
+);
+
+INSERT INTO NOTICE VALUES('첫 공지 사항 등록!','관리자','2025-0921')
