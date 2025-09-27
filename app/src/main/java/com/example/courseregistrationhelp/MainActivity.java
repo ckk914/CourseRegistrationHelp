@@ -1,9 +1,11 @@
 package com.example.courseregistrationhelp;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,13 +15,34 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
+
+    private ListView noticeListBiew;
+    private NoticeListAdapter adapter;
+    private List<Notice> noticeList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+
+        noticeListBiew = (ListView) findViewById(R.id.noticeListView);
+        noticeList = new ArrayList<Notice>();
+        adapter = new NoticeListAdapter(noticeList, getApplicationContext());
+        noticeListBiew.setAdapter(adapter);
 
         final Button courseButton = findViewById(R.id.courseButton);
         final Button scheduleButton = findViewById(R.id.scheduleButton);
@@ -67,5 +90,78 @@ public class MainActivity extends AppCompatActivity {
                 fragmentTransaction.commit();                                      //커밋팅
             }
         });
+
+        new BackgroundTask().execute(); //데이터베이스 접근해서 찾아오도록 실행!(백그라운드 테스크 실행)
+    } //end onCreate
+
+    class BackgroundTask extends AsyncTask<Void, Void, String> {
+
+        String target; // 접속할 주소
+
+        @Override
+        protected void onPreExecute() {
+            target = "http://seq0914.dothome.co.kr/NoticeList.php";
+
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            try {
+                URL url = new URL(target);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                String temp;
+                StringBuilder stringBuilder = new StringBuilder();
+
+                while ((temp = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(temp + "\n");   //읽여서 한줄씩 추
+                }
+                //사용 해제
+                bufferedReader.close();
+                inputStream.close();
+                httpURLConnection.disconnect();
+
+                return stringBuilder.toString().trim();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return "";
+        }
+
+        @Override
+        public void onProgressUpdate(Void... values) {
+            super.onProgressUpdate();
+        }
+
+        //해당 결과 처리용
+        @Override
+        public void onPostExecute(String result) {
+            try {
+                JSONObject jsonObject = new JSONObject(result);
+                //response에 각각의 공지사항들이 있음.
+                JSONArray jsonArray = jsonObject.getJSONArray("response");
+
+                int count = 0;
+                String noticeContent, noticeName, noticeDate;
+                while (count < jsonArray.length()) {
+                    //카운트에 맞는 것 가져옴!
+                    JSONObject object = jsonArray.getJSONObject(count);
+                    //해당값 가져옴!
+                    noticeContent = object.getString("noticeContent");
+                    noticeName = object.getString("noticeName");
+                    noticeDate = object.getString("noticeDate");
+
+                    Notice notice = new Notice(noticeContent, noticeName, noticeDate);
+                    noticeList.add(notice); //리스트에 추가
+                    count++;
+                } //end while
+                adapter.notifyDataSetChanged();  // 이 부분 꼭 추가(공지사항 갱신!)
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }       //
     }
 }
