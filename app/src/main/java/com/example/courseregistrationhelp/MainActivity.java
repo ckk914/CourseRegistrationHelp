@@ -1,11 +1,13 @@
 package com.example.courseregistrationhelp;
 
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -163,5 +165,19 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }       //
+    }
+
+    private long lastTimeBackPressed;
+
+    @SuppressLint("GestureBackNavigation")
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        if(System.currentTimeMillis() - lastTimeBackPressed < 1500){
+            finish();
+            return;
+        }
+        Toast.makeText(this, "`뒤로` 버튼을 한번 더 눌러 종료합니다.", Toast.LENGTH_SHORT);
+        lastTimeBackPressed = System.currentTimeMillis();
     }
 }
