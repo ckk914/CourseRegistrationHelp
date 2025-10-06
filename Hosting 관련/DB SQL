@@ -18,3 +18,23 @@ CREATE TABLE NOTICE (
 );
 
 INSERT INTO NOTICE VALUES('첫 공지 사항 등록!','관리자','2025-0921')
+
+---
+### Course 테이블 생성문
+CREATE TABLE COURSE (
+	courseID INT NOT NULL AUTO_INCREMENT,
+	courseUniversity VARCHAR(50),
+	courseYear INT,
+	courseTerm VARCHAR(50),
+	courseArea VARCHAR(50),
+	courseMajor VARCHAR(50),
+	courseGrade VARCHAR(50),
+	courseTitle VARCHAR(100),
+	courseCredit INT,
+	courseDivide INT,
+	coursePersonnel INT,
+	courseProfessor VARCHAR(50),
+	courseTime VARCHAR(100),
+	courseRoom VARCHAR(100),
+	CONSTRAINT PRIMARY KEY(courseID)
+);
