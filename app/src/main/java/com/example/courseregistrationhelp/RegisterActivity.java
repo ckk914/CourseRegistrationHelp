@@ -45,7 +45,7 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         spinner = (Spinner) findViewById(R.id.majorSpinner);
-        adapter = ArrayAdapter.createFromResource(this, R.array.major, android.R.layout.simple_dropdown_item_1line);
+        adapter = ArrayAdapter.createFromResource(this, R.array.universityMajor, android.R.layout.simple_dropdown_item_1line);
         spinner.setAdapter(adapter);
 
         final EditText idText = (EditText) findViewById(R.id.idText);
