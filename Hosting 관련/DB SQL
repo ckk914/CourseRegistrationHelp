@@ -38,3 +38,9 @@ CREATE TABLE COURSE (
 	courseRoom VARCHAR(100),
 	CONSTRAINT PRIMARY KEY(courseID)
 );
+
+### SCHEDULE 테이블 생성문
+CREATE TABLE SCHEDULE (
+    userID varchar(50),
+    courseID INT
+);
