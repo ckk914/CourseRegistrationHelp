@@ -13,9 +13,13 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -23,6 +27,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CourseFragment extends Fragment {
 
@@ -39,9 +45,15 @@ public class CourseFragment extends Fragment {
     private ArrayAdapter areaAdapter;
     private Spinner areaSpinner;
     private ArrayAdapter majorAdapter;
-    private Spinner majorSpinner;  // 추가
+    private Spinner majorSpinner;
 
     private String courseUniversity = "";
+
+    private ListView courseListView;
+    private CourseListAdapter adapter;
+    private List<Course> courseList;
+
+
 
     public CourseFragment() {
         // Required empty public constructor
@@ -116,6 +128,11 @@ public class CourseFragment extends Fragment {
             }
         });
 
+        courseListView = (ListView) getView().findViewById(R.id.courseListView);
+        courseList = new ArrayList<Course>();
+        adapter = new CourseListAdapter(getContext().getApplicationContext(), courseList);
+        courseListView.setAdapter(adapter);
+
         Button searchButton = (Button) getView().findViewById(R.id.searchButton);
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -178,11 +195,54 @@ public class CourseFragment extends Fragment {
         @Override
         public void onPostExecute(String result) {
             try {
-                AlertDialog.Builder builder = new AlertDialog.Builder(CourseFragment.this.getContext());
-                AlertDialog alertDialog = builder.setMessage(result)
-                        .setPositiveButton("확인", null)
-                        .create();
-                alertDialog.show();
+                courseList.clear();
+                JSONObject jsonObject = new JSONObject(result);
+                JSONArray jsonArray = jsonObject.getJSONArray("response");
+                int count = 0;
+                int courseID; // 강의 고유 번호
+                String courseUniversity; //학부 혹은 대학원
+                String courseYear; //해당 년도
+                String courseTerm; //해당 학기
+                String courseArea; //강의 영역 (교양/ 전공)
+                String courseMajor; // 해당 학과
+                String courseGrade; // 해당 학년
+                String courseTitle; //강의 제목
+                int courseCredit; //강의 학점
+                int courseDivide; //강의 분반
+                int coursePersonnel; //강의 제한 인원
+                String courseProfessor; //강의 교수
+                String courseTime; //강의 시간
+                String courseRoom; // 강의실
+                while(count < jsonArray.length()){
+                   JSONObject object = jsonArray.getJSONObject(count);
+                   courseID = object.getInt("courseID");
+                   courseUniversity = object.getString("courseUniversity");
+                   courseYear = object.getString("courseYear");
+                   courseTerm = object.getString("courseTerm");
+                   courseArea = object.getString("courseArea");
+                   courseMajor = object.getString("courseMajor");
+                   courseGrade = object.getString("courseGrade");
+                   courseTitle = object.getString("courseTitle");
+                   courseCredit = object.getInt("courseCredit");
+                   courseDivide = object.getInt("courseDivide");
+                   coursePersonnel = object.getInt("coursePersonnel");
+                   courseProfessor = object.getString("courseProfessor");
+                   courseTime = object.getString("courseTime");
+                   courseRoom = object.getString("courseRoom");
+
+                   Course course = new Course(courseID, courseUniversity, courseYear, courseTerm, courseArea, courseMajor, courseGrade, courseTitle, courseCredit, courseDivide, coursePersonnel, courseProfessor, courseTime, courseRoom);
+                   courseList.add(course);
+                   count++;
+                }
+                if(count == 0){
+                    AlertDialog alertDialog;
+                    AlertDialog.Builder builder = new AlertDialog.Builder(CourseFragment.this.getActivity());
+                    AlertDialog dialog = builder.setMessage("조회된 강의가 없습니다.")
+                            .setPositiveButton("확인", null)
+                            .create();
+                    dialog.show();
+                }
+                adapter.notifyDataSetChanged();
             } catch (Exception e) {
                 e.printStackTrace();
             }
