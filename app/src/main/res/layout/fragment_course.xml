@@ -112,6 +112,7 @@
             android:id="@+id/courseListView"
             android:dividerHeight="10dp"
             android:divider="#ffffff"
+            android:padding="5dp"
             >
 
         </ListView>
