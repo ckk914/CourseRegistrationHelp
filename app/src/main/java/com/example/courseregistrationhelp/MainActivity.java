@@ -1,6 +1,7 @@
 package com.example.courseregistrationhelp;
 
 import android.annotation.SuppressLint;
+import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -34,12 +35,16 @@ public class MainActivity extends AppCompatActivity {
     private ListView noticeListBiew;
     private NoticeListAdapter adapter;
     private List<Notice> noticeList;
+    public static String studentID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); //화면 세로 고정
+
+        studentID = getIntent().getStringExtra("studentID");
 
         noticeListBiew = (ListView) findViewById(R.id.noticeListView);
         noticeList = new ArrayList<Notice>();
