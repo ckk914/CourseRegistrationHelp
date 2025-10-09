@@ -2,6 +2,7 @@ package com.example.courseregistrationhelp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -45,7 +46,7 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String studentId = idText.getText().toString();
+                String studentID = idText.getText().toString();
                 String studentPassword = passwordText.getText().toString();
 
                 Response.Listener<String> responseListener = new Response.Listener<String>() {
@@ -62,6 +63,8 @@ public class LoginActivity extends AppCompatActivity {
                                         .create();
                                 alertDialog.show();
                                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                Log.d("Kk-DEBUG", "studentID: " + studentID);
+                                intent.putExtra("studentID", studentID);
                                 LoginActivity.this.startActivity(intent);
                                 finish();
                             }
@@ -78,7 +81,7 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     }
                 };
-                LoginRequest loginRequest = new LoginRequest(studentId, studentPassword, responseListener);
+                LoginRequest loginRequest = new LoginRequest(studentID, studentPassword, responseListener);
                 RequestQueue queue = Volley.newRequestQueue(LoginActivity.this);
                 queue.add(loginRequest);
 
