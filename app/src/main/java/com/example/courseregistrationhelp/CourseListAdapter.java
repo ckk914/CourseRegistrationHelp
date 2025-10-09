@@ -1,6 +1,7 @@
 package com.example.courseregistrationhelp;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,19 +17,33 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CourseListAdapter extends BaseAdapter {
     private Context context;
     private List<Course> courseList;
     private Fragment parent;
+    private String studentID = MainActivity.studentID;
+    private Schedule schedule = new Schedule();
+    private List<Integer> courseIDList;
 
     public CourseListAdapter( Context context,List<Course> courseList, Fragment parent) {
         this.courseList = courseList;
         this.context = context;
         this.parent = parent;
+        schedule = new Schedule();
+        courseIDList = new ArrayList<Integer>();
+        new BackgroundTask().execute();
     }
 
     @Override
@@ -88,9 +103,25 @@ public class CourseListAdapter extends BaseAdapter {
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-            String studentID = MainActivity.studentID;
-            //
-            Response.Listener<String> responseListener = new Response.Listener<String>() {
+
+            boolean validate = false;
+            validate = schedule.validate(courseList.get(i).getCourseTime());
+            if(!alreadyIn(courseIDList, courseList.get(i).getCourseID())){
+                AlertDialog.Builder builder = new AlertDialog.Builder(parent.getContext());
+                AlertDialog dialog = builder.setMessage("이미 추가한 강의입니다.")
+                        .setPositiveButton("다시 시도", null)
+                        .create();
+                dialog.show();
+            }
+            else if(validate == false){
+                AlertDialog.Builder builder = new AlertDialog.Builder(parent.getContext());
+                AlertDialog dialog = builder.setMessage("시간표가 중복됩니다.")
+                        .setPositiveButton("다시 시도", null)
+                        .create();
+                dialog.show();
+            }
+            else{
+                Response.Listener<String> responseListener = new Response.Listener<String>() {
                     @Override
                     public void onResponse(String s) {
                         Log.d("DEBUG", "강의추가 서버 응답: " + s);
@@ -104,6 +135,9 @@ public class CourseListAdapter extends BaseAdapter {
                                         .setPositiveButton("확인", null)
                                         .create();
                                 dialog.show();
+                                courseIDList.add(courseList.get(i).getCourseID());
+                                schedule.addSchedule(courseList.get(i).getCourseTime());
+
                             } else {
                                 AlertDialog.Builder builder = new AlertDialog.Builder(parent.getContext());
                                 AlertDialog dialog = builder.setMessage("강의 추가 실패했습니다.")
@@ -135,10 +169,99 @@ public class CourseListAdapter extends BaseAdapter {
                 AddRequest addRequest = new AddRequest(studentID, courseList.get(i).getCourseID()+"",responseListener);
                 RequestQueue queue = Volley.newRequestQueue(parent.getContext());
                 queue.add(addRequest);
-            //
+                //
+            }
             }
         });
 
         return v;
     }
+    //
+    class BackgroundTask extends AsyncTask<Void, Void, String> {
+
+        String target; // 접속할 주소
+
+        @Override
+        protected void onPreExecute() {
+            try {
+                target = "http://seq0914.dothome.co.kr/ScheduleList.php?studentID=" + URLEncoder.encode(studentID, "UTF-8");
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            try {
+                URL url = new URL(target);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                String temp;
+                StringBuilder stringBuilder = new StringBuilder();
+
+                while ((temp = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(temp + "\n");   //읽여서 한줄씩 추
+                }
+                //사용 해제
+                bufferedReader.close();
+                inputStream.close();
+                httpURLConnection.disconnect();
+
+                return stringBuilder.toString().trim();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return "";
+        }
+
+        @Override
+        public void onProgressUpdate(Void... values) {
+            super.onProgressUpdate();
+        }
+
+        //해당 결과 처리용
+        @Override
+        public void onPostExecute(String result) {
+            try {
+                JSONObject jsonObject = new JSONObject(result);
+                //response에 각각의 공지사항들이 있음.
+                JSONArray jsonArray = jsonObject.getJSONArray("response");
+
+                int count = 0;
+                String courseProfessor;
+                String courseTime;
+                int courseID;
+
+                while (count < jsonArray.length()) {
+                    //카운트에 맞는 것 가져옴!
+                    JSONObject object = jsonArray.getJSONObject(count);
+                    //해당값 가져옴!
+                    courseID = object.getInt("courseID");
+                    courseProfessor = object.getString("courseProfessor");
+                    courseTime = object.getString("courseTime");
+
+                    courseIDList.add(courseID); //리스트에 추가
+                    schedule.addSchedule(courseTime);
+                    count++;
+                } //end while
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }       //
+    }
+    //
+    public boolean alreadyIn(List<Integer> courseIDList, int item){
+        for(int i = 0; i < courseIDList.size(); i++){
+            if(courseIDList.get(i) == item){
+                return false;
+            }
+        }
+        return true;
+    }
+
 }
