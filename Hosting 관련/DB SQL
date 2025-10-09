@@ -41,6 +41,6 @@ CREATE TABLE COURSE (
 
 ### SCHEDULE 테이블 생성문
 CREATE TABLE SCHEDULE (
-    userID varchar(50),
+    studentID varchar(50),
     courseID INT
 );
