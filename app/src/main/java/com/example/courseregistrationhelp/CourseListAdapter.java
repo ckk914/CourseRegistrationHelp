@@ -227,6 +227,8 @@ public class CourseListAdapter extends BaseAdapter {
         @Override
         public void onPostExecute(String result) {
             try {
+                Log.d("KK_DEBUG_CourseListAdapter", "Server response: " + result);
+
                 JSONObject jsonObject = new JSONObject(result);
                 //response에 각각의 공지사항들이 있음.
                 JSONArray jsonArray = jsonObject.getJSONArray("response");
