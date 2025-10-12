@@ -1,6 +1,7 @@
 package com.example.courseregistrationhelp;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.TextView;
 
 public class Schedule {
@@ -193,7 +194,8 @@ public class Schedule {
             professor = "";
         }
         else{
-            professor = "(" + courseProfessor + ")";
+            //professor = "(" + courseProfessor + ")";
+            professor = "";
         }
 
         int temp;
@@ -271,28 +273,64 @@ public class Schedule {
     } // end addSchedule
     //<-
     //입력받은 내용들 표현해주기 위한 세팅 함수
-    public void setting(TextView[] monday, TextView[] tuesday, TextView[] wednesday, TextView[] thursday, TextView[] friday, Context context){
-        for(int i = 0; i < 14; i++) {
-         if(!this.monday[i].equals("")){
-             monday[i].setText(this.monday[i]);
-             monday[i].setTextColor(context.getResources().getColor(R.color.colorPrimary));
-         }
+    public void setting(
+            TextView[] monday,
+            TextView[] tuesday,
+            TextView[] wednesday,
+            TextView[] thursday,
+            TextView[] friday,
+            Context context
+    ) {
+        Log.d("Schedule", ">>> setting() start <<<");
+        for (int i = 0; i < 14; i++) {
+            // 월요일
+            if (!this.monday[i].equals("")) {
+                Log.d("Schedule", "monday[" + i + "] = " + this.monday[i]);
+                monday[i].setText(this.monday[i]);
+                monday[i].setTextColor(context.getResources().getColor(R.color.colorPrimaryDark));
+            } else {
+                monday[i].setText("강의 없음");
+            }
+
+            // 화요일
             if (!this.tuesday[i].equals("")) {
                 tuesday[i].setText(this.tuesday[i]);
-                tuesday[i].setTextColor(context.getResources().getColor(R.color.colorPrimary));
+                tuesday[i].setTextColor(context.getResources().getColor(R.color.colorPrimaryDark));
+            } else {
+                tuesday[i].setText("강의 없음");
             }
+
+            // 수요일
             if (!this.wednesday[i].equals("")) {
                 wednesday[i].setText(this.wednesday[i]);
-                wednesday[i].setTextColor(context.getResources().getColor(R.color.colorPrimary));
+                wednesday[i].setTextColor(context.getResources().getColor(R.color.colorPrimaryDark));
+            } else {
+                wednesday[i].setText("강의 없음");
             }
+
+            // 목요일
             if (!this.thursday[i].equals("")) {
                 thursday[i].setText(this.thursday[i]);
-                thursday[i].setTextColor(context.getResources().getColor(R.color.colorPrimary));
+                thursday[i].setTextColor(context.getResources().getColor(R.color.colorPrimaryDark));
+            } else {
+                thursday[i].setText("강의 없음");
             }
+
+            // 금요일
             if (!this.friday[i].equals("")) {
                 friday[i].setText(this.friday[i]);
-                friday[i].setTextColor(context.getResources().getColor(R.color.colorPrimary));
+                friday[i].setTextColor(context.getResources().getColor(R.color.colorPrimaryDark));
+            } else {
+                friday[i].setText("강의 없음");
             }
+
+            // 텍스트 크기 자동 조정
+//            monday[i].resizeText();
+//            tuesday[i].resizeText();
+//            wednesday[i].resizeText();
+//            thursday[i].resizeText();
+//            friday[i].resizeText();
         }
     }
+
 }

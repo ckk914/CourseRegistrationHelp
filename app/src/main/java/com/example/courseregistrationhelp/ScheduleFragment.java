@@ -3,6 +3,8 @@ package com.example.courseregistrationhelp;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -77,24 +79,39 @@ public class ScheduleFragment extends Fragment {
     private Schedule schedule = new Schedule();
 
     //해당 프레그먼트 생성될때 실행
+//    @Override
+//    public void onActivityCreated(Bundle b){
+//        super.onActivityCreated(b);
+//
+//        int total = 14; // 0부터 13까지 14개
+//
+//
+//        for (int i = 0; i < 14; i++) {
+//            monday[i] = getView().findViewById(getResources().getIdentifier("monday" + i, "id", getActivity().getPackageName()));
+//            tuesday[i] = getView().findViewById(getResources().getIdentifier("tuesday" + i, "id", getActivity().getPackageName()));
+//            wednesday[i] = getView().findViewById(getResources().getIdentifier("wednesday" + i, "id", getActivity().getPackageName()));
+//            thursday[i] = getView().findViewById(getResources().getIdentifier("thursday" + i, "id", getActivity().getPackageName()));
+//            friday[i] = getView().findViewById(getResources().getIdentifier("friday" + i, "id", getActivity().getPackageName()));
+//        }
+//
+//        new BackgroundTask().execute();
+//    }// end onActivityCreated
     @Override
-    public void onActivityCreated(Bundle b){
-        super.onActivityCreated(b);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        int total = 14; // 0부터 13까지 14개
-
-
-        for (int i = 0; i < 14; i++) {
-            monday[i] = getView().findViewById(getResources().getIdentifier("monday" + i, "id", getActivity().getPackageName()));
-            tuesday[i] = getView().findViewById(getResources().getIdentifier("tuesday" + i, "id", getActivity().getPackageName()));
-            wednesday[i] = getView().findViewById(getResources().getIdentifier("wednesday" + i, "id", getActivity().getPackageName()));
-            thursday[i] = getView().findViewById(getResources().getIdentifier("thursday" + i, "id", getActivity().getPackageName()));
-            friday[i] = getView().findViewById(getResources().getIdentifier("friday" + i, "id", getActivity().getPackageName()));
+        int total = 14;
+        for (int i = 0; i < total; i++) {
+            monday[i] = view.findViewById(getResources().getIdentifier("monday" + i, "id", requireActivity().getPackageName()));
+            Log.d("KK->ScheduleFragment", "monday" + i + " = " + monday[i]);
+            tuesday[i] = view.findViewById(getResources().getIdentifier("tuesday" + i, "id", requireActivity().getPackageName()));
+            wednesday[i] = view.findViewById(getResources().getIdentifier("wednesday" + i, "id", requireActivity().getPackageName()));
+            thursday[i] = view.findViewById(getResources().getIdentifier("thursday" + i, "id", requireActivity().getPackageName()));
+            friday[i] = view.findViewById(getResources().getIdentifier("friday" + i, "id", requireActivity().getPackageName()));
         }
 
         new BackgroundTask().execute();
-    }// end onActivityCreated
-
+    }
     //
     class BackgroundTask extends AsyncTask<Void, Void, String> {
 
@@ -174,7 +191,7 @@ public class ScheduleFragment extends Fragment {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
+            Log.d("KK->ScheduleFragment", ">>> calling schedule.setting() <<<");
             schedule.setting(monday, tuesday, wednesday, thursday, friday, getContext());
 
         }       //
