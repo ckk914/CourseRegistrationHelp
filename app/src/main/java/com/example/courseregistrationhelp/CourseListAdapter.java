@@ -36,6 +36,8 @@ public class CourseListAdapter extends BaseAdapter {
     private String studentID = MainActivity.studentID;
     private Schedule schedule = new Schedule();
     private List<Integer> courseIDList;
+    public static int totalCredit = 0;
+    private static int MAX_CREDIT = 24;
 
     public CourseListAdapter( Context context,List<Course> courseList, Fragment parent) {
         this.courseList = courseList;
@@ -44,6 +46,7 @@ public class CourseListAdapter extends BaseAdapter {
         schedule = new Schedule();
         courseIDList = new ArrayList<Integer>();
         new BackgroundTask().execute();
+        totalCredit = 0;
     }
 
     @Override
@@ -113,6 +116,13 @@ public class CourseListAdapter extends BaseAdapter {
                         .create();
                 dialog.show();
             }
+            else if(totalCredit + courseList.get(i).getCourseCredit() > MAX_CREDIT){
+                AlertDialog.Builder builder = new AlertDialog.Builder(parent.getContext());
+                AlertDialog dialog = builder.setMessage(MAX_CREDIT+"학점을 초과할 수 없습니다.")
+                        .setPositiveButton("다시 시도", null)
+                        .create();
+                dialog.show();
+            }
             else if(validate == false){
                 AlertDialog.Builder builder = new AlertDialog.Builder(parent.getContext());
                 AlertDialog dialog = builder.setMessage("시간표가 중복됩니다.")
@@ -137,7 +147,7 @@ public class CourseListAdapter extends BaseAdapter {
                                 dialog.show();
                                 courseIDList.add(courseList.get(i).getCourseID());
                                 schedule.addSchedule(courseList.get(i).getCourseTime());
-
+                                totalCredit += courseList.get(i).getCourseCredit();
                             } else {
                                 AlertDialog.Builder builder = new AlertDialog.Builder(parent.getContext());
                                 AlertDialog dialog = builder.setMessage("강의 추가 실패했습니다.")
@@ -227,6 +237,7 @@ public class CourseListAdapter extends BaseAdapter {
         @Override
         public void onPostExecute(String result) {
             try {
+
                 Log.d("KK_DEBUG_CourseListAdapter", "Server response: " + result);
 
                 JSONObject jsonObject = new JSONObject(result);
@@ -237,6 +248,7 @@ public class CourseListAdapter extends BaseAdapter {
                 String courseProfessor;
                 String courseTime;
                 int courseID;
+                totalCredit = 0;
 
                 while (count < jsonArray.length()) {
                     //카운트에 맞는 것 가져옴!
@@ -245,7 +257,7 @@ public class CourseListAdapter extends BaseAdapter {
                     courseID = object.getInt("courseID");
                     courseProfessor = object.getString("courseProfessor");
                     courseTime = object.getString("courseTime");
-
+                    totalCredit += object.getInt("courseCredit");
                     courseIDList.add(courseID); //리스트에 추가
                     schedule.addSchedule(courseTime);
                     count++;

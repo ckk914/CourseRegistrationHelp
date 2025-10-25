@@ -81,9 +81,9 @@ public class StatisticsCourseListAdapter extends BaseAdapter {
             courseRate.setText("");
         }
         else {
-            coursePersonnel.setText("신청 인원: " + courseList.get(i).getCourseRival() + " / "+ courseList.get(i).getCoursePersonnel()+"명");
+            coursePersonnel.setText("신청인원: " + courseList.get(i).getCourseRival() + "/"+ courseList.get(i).getCoursePersonnel()+"명");
             int rate = (int) (((double) courseList.get(i).getCourseRival() * 100 /  courseList.get(i).getCoursePersonnel()) + 0.5) ;
-            courseRate.setText("경쟁률 : " + rate + "% ");
+            courseRate.setText("경쟁률: " + rate + "% ");
             if(rate <20){
                 courseRate.setTextColor(parent.getResources().getColor(R.color.colorSafe));
             }
@@ -101,6 +101,63 @@ public class StatisticsCourseListAdapter extends BaseAdapter {
             }
         }
         v.setTag(courseList.get(i).getCourseID());
+
+        Button deleteButton = (Button) v.findViewById(R.id.deleteButton);
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Response.Listener<String> responseListener = new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String s) {
+                            Log.d("DEBUG", "강의삭제 서버 응답: " + s);
+                            try {
+                                JSONObject jsonResponse = new JSONObject(s);
+                                boolean success = jsonResponse.getBoolean("success");
+
+                                if (success) {
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(parent.getContext());
+                                    AlertDialog dialog = builder.setMessage("강의가 삭제되었습니다.")
+                                            .setPositiveButton("확인", null)
+                                            .create();
+                                    dialog.show();
+                                    StatisticsFragment.totalCredit -= courseList.get(i).getCourseCredit();
+                                    StatisticsFragment.credit.setText(StatisticsFragment.totalCredit+ "학점");
+                                    courseList.remove(i);
+                                    notifyDataSetChanged();
+                                } else {
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(parent.getContext());
+                                    AlertDialog dialog = builder.setMessage("강의 삭제에 실패했습니다.")
+                                            .setNegativeButton("다시 시도", null)
+                                            .create();
+                                    dialog.show();
+                                    Log.d("DEBUG", "강의 삭제 실패");
+                                }
+                            } catch (Exception e) {
+                                Log.e("DEBUG", "강의 삭제 JSON 파싱 오류: " + e.getMessage());
+                                e.printStackTrace();
+                            }
+                        }
+                    };
+
+                    Response.ErrorListener errorListener = new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.e("DEBUG", "강의 삭제 오류: " + error.getMessage());
+                            AlertDialog.Builder builder = new AlertDialog.Builder(parent.getContext());
+                            AlertDialog dialog = builder.setMessage("강의 삭제에 실패했습니다.")
+                                    .setPositiveButton("확인", null)
+                                    .create();
+                            dialog.show();
+                        }
+                    };
+                    Log.d("kk-DEBUG", "studentID: " + studentID);
+                    Log.d("kk-DEBUG", "courseID: " + courseList.get(i).getCourseID());
+                    DeleteRequest deleteRequest = new DeleteRequest(studentID, courseList.get(i).getCourseID()+"",responseListener);
+                    RequestQueue queue = Volley.newRequestQueue(parent.getContext());
+                    queue.add(deleteRequest);
+                    //
+                }
+        });
         return v;
     }
     //
