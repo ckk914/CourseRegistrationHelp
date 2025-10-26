@@ -74,4 +74,13 @@
         <item>청람일반(과학과기술)</item>
         <item>청람일반(교육기반이해)</item>
     </string-array>
+    <string-array name="rank">
+        <item>전체 인기순</item>
+        <item>전공학과 인기순</item>
+        <item>남자 인기순</item>
+        <item>여자 인기순</item>
+        <item>전공 인기순</item>
+        <item>교양 인기순</item>
+    </string-array>
+
 </resources>
