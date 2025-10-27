@@ -159,7 +159,6 @@ public class Course {
     }
 
 
-
     public Course(int courseID, String courseUniversity, String courseYear, String courseTerm, String courseArea, String courseMajor, String courseGrade, String courseTitle, int courseCredit, int courseDivide, int coursePersonnel, String courseProfessor, String courseTime, String courseRoom) {
         this.courseID = courseID;
         this.courseUniversity = courseUniversity;
@@ -175,5 +174,16 @@ public class Course {
         this.courseProfessor = courseProfessor;
         this.courseTime = courseTime;
         this.courseRoom = courseRoom;
+    }
+
+    public Course(int courseID, String courseGrade, String courseTitle, int courseCredit, int courseDivide, int coursePersonnel, String courseTime, String courseProfessor) {
+        this.courseID = courseID;
+        this.courseGrade = courseGrade;
+        this.courseTitle = courseTitle;
+        this.courseCredit = courseCredit;
+        this.courseDivide = courseDivide;
+        this.coursePersonnel = coursePersonnel;
+        this.courseTime = courseTime;
+        this.courseProfessor = courseProfessor;
     }
 }
