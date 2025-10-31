@@ -106,7 +106,7 @@ public class StatisticsFragment extends Fragment {
         rankList = new ArrayList<Course>();
         rankListAdapter = new RankListAdapter(getContext().getApplicationContext(), rankList, this);
         rankListView.setAdapter(rankListAdapter);
-        new ByEntire().execute();
+        //new ByEntire().execute();
 
         rankSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -115,7 +115,8 @@ public class StatisticsFragment extends Fragment {
                 rankList.clear();
                 new ByEntire().execute();
                 }else if(rankSpinner.getSelectedItem().equals("전공학과 인기순")){
-
+                    rankList.clear();
+                    new ByMyMajor().execute();
                 }else if(rankSpinner.getSelectedItem().equals("남자 인기순")){
                 rankList.clear();
                 new ByMale().execute();
@@ -123,9 +124,11 @@ public class StatisticsFragment extends Fragment {
                 rankList.clear();
                 new ByFemale().execute();
                 }else if(rankSpinner.getSelectedItem().equals("전공 인기순")){
-
+                    rankList.clear();
+                    new ByMajor().execute();
                 }else if(rankSpinner.getSelectedItem().equals("교양 인기순")){
-
+                    rankList.clear();
+                    new ByRefinement().execute();
                 }
             }
 
@@ -501,7 +504,284 @@ public class StatisticsFragment extends Fragment {
             }
         }       //
     }
+    // 3
+    class ByMyMajor extends AsyncTask<Void, Void, String> {
 
+        String target; // 접속할 주소
+
+        @Override
+        protected void onPreExecute() {
+            try {
+                target = "http://seq0914.dothome.co.kr/ByMyMajor.php?studentID="+URLEncoder.encode(MainActivity.studentID, "UTF-8");
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            try {
+                URL url = new URL(target);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                String temp;
+                StringBuilder stringBuilder = new StringBuilder();
+
+                while ((temp = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(temp + "\n");   //읽여서 한줄씩 추
+                }
+                //사용 해제
+                bufferedReader.close();
+                inputStream.close();
+                httpURLConnection.disconnect();
+
+                return stringBuilder.toString().trim();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return "";
+        }
+
+        @Override
+        public void onProgressUpdate(Void... values) {
+            super.onProgressUpdate();
+        }
+
+        //해당 결과 처리용
+        @Override
+        public void onPostExecute(String result) {
+            try {
+                // 실제로 서버에서 받은 응답 내용 로그 찍기
+                Log.d("KK->ScheduleFragment", "Server response: " + result);
+
+                JSONObject jsonObject = new JSONObject(result);
+                //response에 각각의 공지사항들이 있음.
+                JSONArray jsonArray = jsonObject.getJSONArray("response");
+
+                int count = 0;
+                int courseID;
+                String courseGrade;
+                String courseTitle;
+                int courseCredit;
+                String courseProfessor;
+                int courseDivide;
+                int coursePersonnel;
+
+                String courseTime;
+
+                while (count < jsonArray.length()) {
+                    //카운트에 맞는 것 가져옴!
+                    JSONObject object = jsonArray.getJSONObject(count);
+                    //해당값 가져옴!
+                    courseID = object.getInt("courseID");
+                    courseGrade = object.getString("courseGrade");
+                    courseTitle = object.getString("courseTitle");
+                    courseDivide = object.getInt("courseDivide");
+                    courseProfessor = object.getString("courseProfessor");
+                    courseCredit = object.getInt("courseCredit");
+                    courseDivide = object.getInt("courseDivide");
+                    coursePersonnel = object.getInt("coursePersonnel");
+                    courseTime = object.getString("courseTime");
+
+                    rankList.add(new Course( courseID,  courseGrade,  courseTitle,  courseCredit,  courseDivide,  coursePersonnel, courseTime,  courseProfessor));
+                    count++;
+                } //end while
+                rankListAdapter.notifyDataSetChanged();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }       //
+    }
+    //4
+    class ByMajor extends AsyncTask<Void, Void, String> {
+
+        String target; // 접속할 주소
+
+        @Override
+        protected void onPreExecute() {
+            try {
+                target = "http://seq0914.dothome.co.kr/ByMajor.php?studentID="+URLEncoder.encode(MainActivity.studentID, "UTF-8");
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            try {
+                URL url = new URL(target);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                String temp;
+                StringBuilder stringBuilder = new StringBuilder();
+
+                while ((temp = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(temp + "\n");   //읽여서 한줄씩 추
+                }
+                //사용 해제
+                bufferedReader.close();
+                inputStream.close();
+                httpURLConnection.disconnect();
+
+                return stringBuilder.toString().trim();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return "";
+        }
+
+        @Override
+        public void onProgressUpdate(Void... values) {
+            super.onProgressUpdate();
+        }
+
+        //해당 결과 처리용
+        @Override
+        public void onPostExecute(String result) {
+            try {
+                // 실제로 서버에서 받은 응답 내용 로그 찍기
+                Log.d("KK->ScheduleFragment", "Server response: " + result);
+
+                JSONObject jsonObject = new JSONObject(result);
+                //response에 각각의 공지사항들이 있음.
+                JSONArray jsonArray = jsonObject.getJSONArray("response");
+
+                int count = 0;
+                int courseID;
+                String courseGrade;
+                String courseTitle;
+                int courseCredit;
+                String courseProfessor;
+                int courseDivide;
+                int coursePersonnel;
+
+                String courseTime;
+
+                while (count < jsonArray.length()) {
+                    //카운트에 맞는 것 가져옴!
+                    JSONObject object = jsonArray.getJSONObject(count);
+                    //해당값 가져옴!
+                    courseID = object.getInt("courseID");
+                    courseGrade = object.getString("courseGrade");
+                    courseTitle = object.getString("courseTitle");
+                    courseDivide = object.getInt("courseDivide");
+                    courseProfessor = object.getString("courseProfessor");
+                    courseCredit = object.getInt("courseCredit");
+                    courseDivide = object.getInt("courseDivide");
+                    coursePersonnel = object.getInt("coursePersonnel");
+                    courseTime = object.getString("courseTime");
+
+                    rankList.add(new Course( courseID,  courseGrade,  courseTitle,  courseCredit,  courseDivide,  coursePersonnel, courseTime,  courseProfessor));
+                    count++;
+                } //end while
+                rankListAdapter.notifyDataSetChanged();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }       //
+    }
+    //<---
+    // 5
+    class ByRefinement extends AsyncTask<Void, Void, String> {
+
+        String target; // 접속할 주소
+
+        @Override
+        protected void onPreExecute() {
+            try {
+                target = "http://seq0914.dothome.co.kr/ByRefinement.php?studentID="+URLEncoder.encode(MainActivity.studentID, "UTF-8");
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            try {
+                URL url = new URL(target);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                String temp;
+                StringBuilder stringBuilder = new StringBuilder();
+
+                while ((temp = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(temp + "\n");   //읽여서 한줄씩 추
+                }
+                //사용 해제
+                bufferedReader.close();
+                inputStream.close();
+                httpURLConnection.disconnect();
+
+                return stringBuilder.toString().trim();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return "";
+        }
+
+        @Override
+        public void onProgressUpdate(Void... values) {
+            super.onProgressUpdate();
+        }
+
+        //해당 결과 처리용
+        @Override
+        public void onPostExecute(String result) {
+            try {
+                // 실제로 서버에서 받은 응답 내용 로그 찍기
+                Log.d("KK->ScheduleFragment", "Server response: " + result);
+
+                JSONObject jsonObject = new JSONObject(result);
+                //response에 각각의 공지사항들이 있음.
+                JSONArray jsonArray = jsonObject.getJSONArray("response");
+
+                int count = 0;
+                int courseID;
+                String courseGrade;
+                String courseTitle;
+                int courseCredit;
+                String courseProfessor;
+                int courseDivide;
+                int coursePersonnel;
+
+                String courseTime;
+
+                while (count < jsonArray.length()) {
+                    //카운트에 맞는 것 가져옴!
+                    JSONObject object = jsonArray.getJSONObject(count);
+                    //해당값 가져옴!
+                    courseID = object.getInt("courseID");
+                    courseGrade = object.getString("courseGrade");
+                    courseTitle = object.getString("courseTitle");
+                    courseDivide = object.getInt("courseDivide");
+                    courseProfessor = object.getString("courseProfessor");
+                    courseCredit = object.getInt("courseCredit");
+                    courseDivide = object.getInt("courseDivide");
+                    coursePersonnel = object.getInt("coursePersonnel");
+                    courseTime = object.getString("courseTime");
+
+                    rankList.add(new Course( courseID,  courseGrade,  courseTitle,  courseCredit,  courseDivide,  coursePersonnel, courseTime,  courseProfessor));
+                    count++;
+                } //end while
+                rankListAdapter.notifyDataSetChanged();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }       //
+    }
+    //<-------------
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
