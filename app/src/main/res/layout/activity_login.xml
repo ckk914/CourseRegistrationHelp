@@ -4,7 +4,9 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LoginActivity">
+    tools:context=".LoginActivity"
+    android:background="@color/colorBackground"
+    >
 
     <!-- 상단 로고 영역 -->
     <LinearLayout
@@ -19,8 +21,8 @@
             android:layout_height="125dp"
             android:layout_gravity="center"
             android:layout_marginTop="20dp"
-            android:src="@drawable/school_logo"
-            android:background="@color/white"/>
+            android:src="@drawable/school_logo2"
+            />
 
         <TextView
             android:layout_width="wrap_content"
@@ -104,6 +106,26 @@
             android:layout_margin="10dp"
             android:id="@+id/registerButton"
             />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="bottom"
+            android:layout_gravity="center"
+            android:paddingBottom="10dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="15dp"
+                android:text="Kon App"
+                android:id="@+id/information"
+                />
+        </LinearLayout>
+
+
+
     </LinearLayout>
 
+    
 </RelativeLayout>
