@@ -26,6 +26,10 @@
 
         </activity>
         <activity
+            android:name=".Pop"
+            android:theme="@style/AppTheme.Pop"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="false" />
         <activity

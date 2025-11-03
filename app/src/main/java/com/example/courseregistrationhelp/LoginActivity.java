@@ -87,7 +87,17 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
+
+        TextView information = (TextView) findViewById(R.id.information);
+        information.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            startActivity(new Intent(LoginActivity.this, Pop.class));
+            }
+        });
     }
+
+
     @Override
     protected void onStop(){
         super.onStop();
