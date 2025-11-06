@@ -105,6 +105,7 @@
             android:textSize="18dp"
             android:layout_margin="10dp"
             android:id="@+id/registerButton"
+            android:textColor="@color/colorPrimaryDark"
             />
 
         <LinearLayout
@@ -114,12 +115,15 @@
             android:layout_gravity="center"
             android:paddingBottom="10dp">
             <TextView
+                android:drawableStart="@drawable/outline_help_24"
+                android:drawableLeft="@drawable/outline_help_24"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:textSize="15dp"
-                android:text="Kon App"
+                android:text="App Info"
                 android:id="@+id/information"
+                android:textColor="@color/colorPrimaryDark"
                 />
         </LinearLayout>
 
